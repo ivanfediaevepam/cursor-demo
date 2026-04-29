@@ -1,0 +1,6 @@
+# Secrets — never index, never read
+.env
+.env.*
+*.key
+*.pem
+secrets/
