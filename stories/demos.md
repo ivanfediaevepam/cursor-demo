@@ -80,25 +80,3 @@
 **Mode:** Agent
 **Action:** Type `/` and select the PR Review skill from the picker.
 **Action:** Run it. Review the risk-graded summary and checklist output.
-
----
-
-## DEMO 7 — Pitfalls Live
-### Confident Hallucination
-**State:** `FlightService.ts` open.
-**Mode:** Agent
-**Prompt 1:**
-> Refactor FlightService.ts to use modern axios patterns with interceptors and proper error handling.
-
-**Action:** Watch it invent outdated patterns. Stop and Restore Checkpoint.
-**Prompt 1 (Corrected):**
-> Refactor @FlightService.ts using axios 1.x patterns. use context7
-
-### The Doom Loop
-**State:** Break a test intentionally. Cmd+K on `PlanesControllerTests.cs`, change `HaveCount(3)` to `HaveCount(5)`.
-**Prompt 2 (Vague):**
-> Fix the failing tests.
-
-**Action:** Watch the agent flail. Stop the loop. Restore Checkpoint.
-**Prompt 2 (Corrected):**
-> PlanesControllerTests.GetAll_ReturnsListOfPlanes is failing because the expected count is wrong. The seed data has 3 planes. Fix only the assertion.
