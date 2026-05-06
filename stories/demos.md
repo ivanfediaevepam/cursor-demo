@@ -42,17 +42,6 @@ Run these demos sequentially. For each step, open the target file, open Cursor C
 
 ---
 
-## 4. Create Swagger Doc for API
-
-**Goal:** Expose the new endpoint properly in our API schema.
-**Context:** Open `FlightsController.cs`.
-
-**Prompt to copy:**
-```text
-/create-swagger-doc Enrich the new PUT endpoint with comprehensive OpenAPI/Swagger annotations. Add [ProducesResponseType] attributes for the 200 and 404 status codes, and a [SwaggerOperation] description.
-```
-
----
 
 ## 5. Create Diagrams
 
@@ -149,17 +138,3 @@ Run these demos sequentially. For each step, open the target file, open Cursor C
 ```
 
 ---
-
-## 13. Work with Git
-
-**Goal:** Perform an AI-assisted code review before merging.
-**Context:** Make sure you have staged all changes from the previous steps (`git add .`).
-
-**Prompt to copy:**
-```text
-/git-code-review-mcp Review my currently staged git changes for this Flight Status feature. Are there any missing edge cases, syntax issues, or architectural violations? Provide your feedback as inline comments and suggest a conventional commit message.
-```
-
----
-
-> **Reset tip:** After the full story demo, use `git stash` or `git checkout -- .` to restore the original repository state.

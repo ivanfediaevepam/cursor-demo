@@ -144,6 +144,7 @@ stateDiagram-v2
 
 - **Always declare direction** (`LR`, `TD`, `RL`, `BT`). `LR` for flows with clear input→output; `TD` for hierarchies and trees.
 - **Group with `subgraph`** for layers, bounded contexts, deployment zones, or trust boundaries. Quote multi-word labels: `subgraph API["API Layer"]`.
+- **Quote labels with special characters.** Use quotes for actor/participant labels with spaces, slashes, or special symbols to prevent syntax errors (e.g., `actor U as "User / Client"`).
 - **Label every edge** with a verb or message (`-->|publishes|`, `->>: GET /users`). Unlabeled edges are tolerable only when the relationship is obvious from shape (e.g., ER cardinality).
 - **Color by role, not rainbow.** Use `classDef` to mark categories — external systems, datastores, deprecated components, async boundaries. Stick to 3–5 classes max.
 - **Naming:** PascalCase for classes/services, camelCase for methods, UPPER_SNAKE for tables/env, kebab-case allowed for infra resources. Be consistent within one diagram.
