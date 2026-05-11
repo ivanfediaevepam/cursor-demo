@@ -1,0 +1,1 @@
+/plan-implement-review Add a new endpoint `GET /flights/origin/{origin}` to the FlightsController that returns a list of flights departing from the specified origin. After implementing the endpoint, add a basic unit test to verify this behavior.
