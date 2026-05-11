@@ -57,14 +57,29 @@ public class FlightsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = flight.Id }, flight);
     }
 
-    [HttpPost("{id}/status")]
-    public ActionResult UpdateFlightStatus(int id, FlightStatus newStatus)
+    /// <summary>Updates a flight's status when the requested transition satisfies business rules.</summary>
+    /// <param name="id">The identifier of the flight whose status should be updated.</param>
+    /// <param name="request">The desired next status, supplied in the request body.</param>
+    /// <returns>
+    /// HTTP 200 OK with the updated <see cref="Flight"/> when the flight exists and the transition is allowed;
+    /// HTTP 404 Not Found when no flight matches <paramref name="id"/>;
+    /// HTTP 400 Bad Request when the body is missing, the status is unsupported, or the transition is invalid.
+    /// </returns>
+    [HttpPut("{id:int}/status")]
+    public ActionResult<Flight> UpdateFlightStatus(int id, [FromBody] UpdateFlightStatusRequest request)
     {
+        if (request == null)
+        {
+            return BadRequest("Request body is required.");
+        }
+
         var flight = _flightRepository.GetFlightById(id);
         if (flight == null)
         {
-            return NotFound("Flight not found.");
+            return NotFound();
         }
+
+        var newStatus = request.Status;
 
         switch (newStatus)
         {
@@ -117,6 +132,6 @@ public class FlightsController : ControllerBase
         flight.Status = newStatus;
         _flightRepository.UpdateFlight(flight);
 
-        return Ok($"Flight status updated to {newStatus}.");
+        return Ok(flight);
     }
 }

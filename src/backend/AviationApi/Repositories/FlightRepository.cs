@@ -58,7 +58,7 @@ namespace AviationApi.Repositories
 
         public Flight GetFlightById(int id)
         {
-            return Flights.ElementAt(id);
+            return Flights.FirstOrDefault(f => f.Id == id);
         }
 
         public Flight AddFlight(Flight flight)
