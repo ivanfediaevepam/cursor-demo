@@ -1,0 +1,13 @@
+{
+    "mcpServers": {
+        "backstage-bridge": {
+            "type": "stdio",
+            "command": "npx",
+            "args": ["tsx", "${workspaceFolder}/backstage-mcp/server.ts"],
+            "cwd": "${workspaceFolder}/backstage-mcp",
+            "env": {
+                "PATH": "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+            }
+        }
+    }
+}
