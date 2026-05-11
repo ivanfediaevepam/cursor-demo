@@ -134,4 +134,49 @@ public class FlightsController : ControllerBase
 
         return Ok(flight);
     }
+
+    [HttpPost("{id}/calculateAerodynamics")]
+    public ActionResult CalculateAerodynamics(int id)
+    {
+        _logger.LogInformation($"POST ✈✈✈ Calculating Aerodynamics for {id} ✈✈✈");
+
+        var flight = _flightRepository.GetFlightById(id);
+
+        if (flight == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(new { Message = "Aerodynamics calculated successfully." });
+    }
+
+    [HttpPost("{id}/takeFlight/{altitude}")]
+    public ActionResult TakeFlight(int id, int altitude)
+    {
+        _logger.LogInformation($"POST ✈✈✈ Flight {id} taking flight to {altitude}ft ✈✈✈");
+
+        var flight = _flightRepository.GetFlightById(id);
+
+        if (flight == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(new { Message = $"Flight {id} is now at {altitude}ft." });
+    }
+
+    [HttpPost("{id}/lightningStrike")]
+    public ActionResult LightningStrike(int id)
+    {
+        _logger.LogInformation($"POST ✈✈✈ Lightning strike on flight {id}! ⚡⚡⚡");
+
+        var flight = _flightRepository.GetFlightById(id);
+
+        if (flight == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(new { Message = "Lightning strike handled." });
+    }
 }
