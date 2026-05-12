@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: payment-gateway
+  description: External payment gateway API wrapper
+  tags:
+    - openapi
+    - payments
+  annotations:
+    github.com/project-slug: myorg/payment-gateway
+spec:
+  type: openapi
+  lifecycle: production
+  owner: group:payments-squad
+  definition:
+    $text: https://raw.githubusercontent.com/myorg/payment-gateway/main/openapi.yaml

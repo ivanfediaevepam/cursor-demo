@@ -23,5 +23,27 @@ content-type: application/json
 
 ###
 
+GET http://localhost:1903/planes/1/maintenance HTTP/1.1
+
+###
+
+POST http://localhost:1903/planes/1/maintenance HTTP/1.1
+content-type: application/json
+
+{
+  "performedAt": "1910-05-01T10:00:00",
+  "kind": "Inspection",
+  "summary": "Pre-flight structural inspection",
+  "details": "Wing struts and skids OK.",
+  "performedBy": "W. Wright",
+  "workOrderReference": "WO-1910-0001"
+}
+
+###
+
+GET http://localhost:1903/planes/1/maintenance/1 HTTP/1.1
+
+###
+
 POST http://localhost:1903/flights/1/takeoff/50 HTTP/1.1
 content-type: application/json

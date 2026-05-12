@@ -98,7 +98,82 @@ namespace AviationApi.Tests.Controllers
             result.Result.Should().BeOfType<OkObjectResult>()
                 .Which.Value.Should().BeSameAs(existing);
             existing.Status.Should().Be(FlightStatus.Boarding);
-            _flightRepository.Received(1).UpdateFlight(Arg.Is<Flight>(f => f.Id == 1 && f.Status == FlightStatus.Boarding));
+            existing.DelayReason.Should().BeNull();
+            _flightRepository.Received(1).UpdateFlight(Arg.Is<Flight>(f => f.Id == 1 && f.Status == FlightStatus.Boarding && f.DelayReason == null));
+        }
+
+        [Fact]
+        public void UpdateFlightStatus_WhenDelayedWithValidReason_ReturnsOkAndPersistsReason()
+        {
+            var departure = DateTime.UtcNow.AddDays(1);
+            var existing = CreateFlight(id: 1, status: FlightStatus.Scheduled, departureTime: departure);
+            _flightRepository.GetFlightById(1).Returns(existing);
+
+            var result = _sut.UpdateFlightStatus(1, new UpdateFlightStatusRequest
+            {
+                Status = FlightStatus.Delayed,
+                DelayReason = "Weather",
+            });
+
+            result.Result.Should().BeOfType<OkObjectResult>()
+                .Which.Value.Should().BeSameAs(existing);
+            existing.Status.Should().Be(FlightStatus.Delayed);
+            existing.DelayReason.Should().Be("Weather");
+            _flightRepository.Received(1).UpdateFlight(Arg.Is<Flight>(f =>
+                f.Id == 1 && f.Status == FlightStatus.Delayed && f.DelayReason == "Weather"));
+        }
+
+        [Fact]
+        public void UpdateFlightStatus_WhenDelayedWithoutReason_ReturnsBadRequestAndDoesNotUpdate()
+        {
+            var departure = DateTime.UtcNow.AddDays(1);
+            var existing = CreateFlight(id: 1, status: FlightStatus.Scheduled, departureTime: departure);
+            _flightRepository.GetFlightById(1).Returns(existing);
+
+            var result = _sut.UpdateFlightStatus(1, new UpdateFlightStatusRequest
+            {
+                Status = FlightStatus.Delayed,
+                DelayReason = null,
+            });
+
+            result.Result.Should().BeOfType<BadRequestObjectResult>()
+                .Which.Value.Should().Be("Delay reason is required when status is Delayed.");
+            existing.Status.Should().Be(FlightStatus.Scheduled);
+            _flightRepository.DidNotReceive().UpdateFlight(Arg.Any<Flight>());
+        }
+
+        [Fact]
+        public void UpdateFlightStatus_WhenDelayedWithInvalidReason_ReturnsBadRequestAndDoesNotUpdate()
+        {
+            var departure = DateTime.UtcNow.AddDays(1);
+            var existing = CreateFlight(id: 1, status: FlightStatus.Scheduled, departureTime: departure);
+            _flightRepository.GetFlightById(1).Returns(existing);
+
+            var result = _sut.UpdateFlightStatus(1, new UpdateFlightStatusRequest
+            {
+                Status = FlightStatus.Delayed,
+                DelayReason = "Fog",
+            });
+
+            result.Result.Should().BeOfType<BadRequestObjectResult>()
+                .Which.Value.Should().Be("Invalid delay reason.");
+            _flightRepository.DidNotReceive().UpdateFlight(Arg.Any<Flight>());
+        }
+
+        [Fact]
+        public void UpdateFlightStatus_WhenLeavingDelayed_ClearsDelayReason()
+        {
+            var departure = DateTime.UtcNow.AddDays(1);
+            var existing = CreateFlight(id: 1, status: FlightStatus.Delayed, departureTime: departure, delayReason: "Weather");
+            _flightRepository.GetFlightById(1).Returns(existing);
+
+            var result = _sut.UpdateFlightStatus(1, new UpdateFlightStatusRequest { Status = FlightStatus.Boarding });
+
+            result.Result.Should().BeOfType<OkObjectResult>();
+            existing.Status.Should().Be(FlightStatus.Boarding);
+            existing.DelayReason.Should().BeNull();
+            _flightRepository.Received(1).UpdateFlight(Arg.Is<Flight>(f =>
+                f.Status == FlightStatus.Boarding && f.DelayReason == null));
         }
 
         [Fact]
@@ -118,7 +193,8 @@ namespace AviationApi.Tests.Controllers
         private static Flight CreateFlight(
             int id,
             FlightStatus status,
-            DateTime? departureTime = null)
+            DateTime? departureTime = null,
+            string? delayReason = null)
         {
             var dep = departureTime ?? DateTime.UtcNow.AddDays(1);
             return new Flight
@@ -130,6 +206,7 @@ namespace AviationApi.Tests.Controllers
                 DepartureTime = dep,
                 ArrivalTime = dep.AddHours(1),
                 Status = status,
+                DelayReason = delayReason,
                 FuelRange = 100,
                 FuelTankLeak = false,
                 FlightLogSignature = "log-sig",

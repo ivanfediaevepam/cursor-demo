@@ -1,4 +1,5 @@
 
+using System.Text.Json.Serialization;
 using AviationApi.Repositories;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
@@ -18,11 +19,16 @@ builder.Services.AddHealthChecks()
             return HealthCheckResult.Unhealthy("The application is facing a system failure and needs immediate attention.");
         }
     });
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<IFlightRepository, FlightRepository>();
+builder.Services.AddSingleton<IPlaneRepository, PlaneRepository>();
 
 builder.Services.AddCors(options =>
 {

@@ -9,6 +9,10 @@ public class Flight
     public DateTime DepartureTime { get; set; }
     public DateTime ArrivalTime { get; set; }
     public FlightStatus Status { get; set; }
+
+    /// <summary>Optional delay classification; only meaningful when <see cref="Status"/> is <see cref="FlightStatus.Delayed"/>; otherwise null.</summary>
+    public string DelayReason { get; set; }
+
     public int FuelRange { get; set; }
 
     public bool FuelTankLeak { get; set; }

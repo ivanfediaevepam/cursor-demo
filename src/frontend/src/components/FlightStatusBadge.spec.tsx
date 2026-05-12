@@ -24,6 +24,14 @@ describe('FlightStatusBadge', () => {
     );
   });
 
+  it('shows delay reason next to Delayed label when provided', () => {
+    render(<FlightStatusBadge status="Delayed" delayReason="Weather" />);
+    expect(screen.getByText('(Weather)')).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('Flight status: Delayed (Weather)'),
+    ).toBeInTheDocument();
+  });
+
   it('forwards the className prop alongside variant classes', () => {
     render(<FlightStatusBadge status="Landed" className="ml-2" />);
     const badge = screen.getByText('Landed');

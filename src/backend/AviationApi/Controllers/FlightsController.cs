@@ -59,11 +59,12 @@ public class FlightsController : ControllerBase
 
     /// <summary>Updates a flight's status when the requested transition satisfies business rules.</summary>
     /// <param name="id">The identifier of the flight whose status should be updated.</param>
-    /// <param name="request">The desired next status, supplied in the request body.</param>
+    /// <param name="request">The desired next status and optional delay reason (required when status is <see cref="FlightStatus.Delayed"/>).</param>
     /// <returns>
     /// HTTP 200 OK with the updated <see cref="Flight"/> when the flight exists and the transition is allowed;
     /// HTTP 404 Not Found when no flight matches <paramref name="id"/>;
-    /// HTTP 400 Bad Request when the body is missing, the status is unsupported, or the transition is invalid.
+    /// HTTP 400 Bad Request when the body is missing, the status is unsupported, the transition is invalid,
+    /// status is Delayed without a valid <see cref="UpdateFlightStatusRequest.DelayReason"/>, or the delay reason is not in the allowed vocabulary.
     /// </returns>
     [HttpPut("{id:int}/status")]
     public ActionResult<Flight> UpdateFlightStatus(int id, [FromBody] UpdateFlightStatusRequest request)
@@ -127,6 +128,26 @@ public class FlightsController : ControllerBase
 
             default:
                 return BadRequest("Unknown or unsupported flight status.");
+        }
+
+        if (newStatus == FlightStatus.Delayed)
+        {
+            var reason = request.DelayReason?.Trim();
+            if (string.IsNullOrEmpty(reason))
+            {
+                return BadRequest("Delay reason is required when status is Delayed.");
+            }
+
+            if (!DelayReasonCatalog.IsAllowed(reason))
+            {
+                return BadRequest("Invalid delay reason.");
+            }
+
+            flight.DelayReason = reason;
+        }
+        else
+        {
+            flight.DelayReason = null;
         }
 
         flight.Status = newStatus;

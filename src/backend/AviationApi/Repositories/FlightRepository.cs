@@ -110,6 +110,7 @@ namespace AviationApi.Repositories
                 flight.DepartureTime = updatedFlight.DepartureTime;
                 flight.ArrivalTime = updatedFlight.ArrivalTime;
                 flight.Status = updatedFlight.Status;
+                flight.DelayReason = updatedFlight.DelayReason;
                 flight.FuelRange = updatedFlight.FuelRange;
                 flight.FuelTankLeak = updatedFlight.FuelTankLeak;
                 flight.FlightLogSignature = updatedFlight.FlightLogSignature;

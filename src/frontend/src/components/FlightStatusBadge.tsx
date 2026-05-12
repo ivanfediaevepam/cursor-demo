@@ -3,6 +3,8 @@ import type { FlightStatus } from "../services/Flight";
 
 interface FlightStatusBadgeProps {
   status: FlightStatus;
+  /** Shown in parentheses when status is Delayed (e.g. Weather). */
+  delayReason?: string | null;
   className?: string;
 }
 
@@ -28,16 +30,24 @@ const statusLabels: Record<FlightStatus, string> = {
 
 const FlightStatusBadge: React.FC<FlightStatusBadgeProps> = ({
   status,
+  delayReason,
   className,
 }) => {
   const base =
     "inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full ring-1 ring-inset";
+  const reasonSuffix =
+    status === "Delayed" && delayReason ? ` (${delayReason})` : "";
   return (
     <span
       className={`${base} ${statusStyles[status]} ${className ?? ""}`}
-      aria-label={`Flight status: ${statusLabels[status]}`}
+      aria-label={`Flight status: ${statusLabels[status]}${reasonSuffix}`}
     >
       {statusLabels[status]}
+      {status === "Delayed" && delayReason ? (
+        <span className="ml-1 font-normal normal-case text-yellow-900">
+          ({delayReason})
+        </span>
+      ) : null}
     </span>
   );
 };

@@ -6,7 +6,7 @@
 
 ## Scenario 2: Standardizing API Definitions
 
-## "We need to add the `payment-gateway` API to Backstage. Please fetch the corporate schemas and generate the correct `API` kind YAML definition. Save it as `payment-gateway.yaml`."
+"We need to add the `payment-gateway` API to Backstage. Please fetch the corporate schemas and generate the correct `API` kind YAML definition. Save it as `payment-gateway.yaml`."
 
 ## Scenario 3: Automating TechDocs Toil
 
