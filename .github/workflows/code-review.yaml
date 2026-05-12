@@ -1,0 +1,63 @@
+name: Cursor Code Review
+
+on:
+    pull_request:
+        types: [opened, synchronize, ready_for_review, reopened]
+        # Optional: Only run on specific file changes
+        # paths:
+        #   - "src/**/*.ts"
+        #   - "src/**/*.tsx"
+        #   - "src/**/*.js"
+        #   - "src/**/*.jsx"
+
+concurrency:
+    group: cursor-code-review-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    cursor-review:
+        # Optional: Filter by PR author
+        # if: |
+        #   github.event.pull_request.user.login == 'external-contributor' ||
+        #   github.event.pull_request.user.login == 'new-developer' ||
+        #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
+
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            pull-requests: write
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 1
+
+            - name: Install Cursor CLI
+              run: |
+                  curl https://cursor.com/install -fsS | bash
+                  echo "$HOME/.cursor/bin" >> "$GITHUB_PATH"
+
+            # Add repository secret CURSOR_API_KEY (Cursor Dashboard → Integrations → API keys).
+            - name: Run Cursor security review
+              id: cursor-review
+              env:
+                  CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+                  GH_TOKEN: ${{ github.token }}
+                  REVIEW_PROMPT: |
+                      REPO: ${{ github.repository }}
+                      PR NUMBER: ${{ github.event.pull_request.number }}
+
+                      You are an expert Senior Application Security Engineer performing an automated code review on a GitHub Pull Request. Your primary objective is to protect the application from data breaches and severe vulnerabilities.
+
+                      Use gh pr diff and gh pr view for the PR number above as needed to inspect the change set. GH_TOKEN is already set for authenticated GitHub CLI use.
+
+                      Analyze the change set and strictly follow these rules:
+
+                      1. FOCUS ON SECURITY ONLY: Ignore all code styling, formatting, naming conventions, and documentation issues. Only flag critical security risks.
+                      2. PII AND SENSITIVE DATA: Aggressively check for Personally Identifiable Information (PII) leaks. Ensure that API endpoints do not return sensitive database fields (e.g., password hashes, tax IDs, credit card tokens) to the client.
+                      3. ACTIONABLE FEEDBACK: If you find a security vulnerability, you must provide the exact reason why it is dangerous and write a specific, concrete suggestion on how the developer should fix it.
+                      4. TOOL USE: If a vulnerability is detected, you MUST leave feedback on the pull request at the exact file and line when possible. Prefer inline review comments via gh api to POST repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/comments with JSON fields body, commit_id (PR head SHA from gh pr view for this PR, JSON field headRefOid), path, line, and side set to RIGHT for comments on the new side of the diff. Post one comment per distinct finding. If a precise line cannot be determined, use gh pr comment for this PR number with a clear, scoped summary instead.
+                      5. SILENT APPROVAL: If no critical security vulnerabilities are found, do not leave any PR comment and do not print a summary or conversational text. Exit without posting to GitHub.
+              run: |
+                  agent -p --model composer-2 --output-format text "$REVIEW_PROMPT"
